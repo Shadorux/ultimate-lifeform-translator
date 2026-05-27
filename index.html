@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shadow Translator</title>
+  <link rel="stylesheet" href="shadow-the-hedgehog.css" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: url('shadowtranslator.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+    .app-container {
+      position: relative;
+      min-height: 100vh;
+    }
+    .app {
+      position: absolute;
+      top: var(--app-top, 20%);
+      left: var(--app-left, 20%);
+      transform: translate(10%, 36%);
+      width: min(90vw, 760px);
+      background: rgba(0, 0, 0, 0.92);
+      border: 1px solid rgba(255, 0, 0, 0.9);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 0, 0, 0.2);
+      z-index: 2;
+      min-width: 320px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      margin-bottom: 1rem;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      border: 1px solid #660000;
+      padding: 1rem;
+      border-radius: 0.75rem;
+    }
+    button {
+      background: #880000;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #660000;
+      border-radius: 0.75rem;
+      min-height: 80px;
+      white-space: pre-wrap;
+    }
+    @media (max-width: 768px) {
+      body {
+        background: url('shadowthehedgehog2.png') no-repeat center center fixed;
+        background-size: cover;
+        background-attachment: scroll;
+      }
+      .app-container {
+        min-height: auto;
+      }
+      .app {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        margin: 1rem auto;
+        width: min(96vw, 100%);
+        min-width: auto;
+        border-radius: 1rem;
+        padding: 1rem;
+      }
+      textarea {
+        min-height: 100px;
+      }
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="app">
+      <h1>Shadow the Hedgehog Translator</h1>
+      <p>Type a sentence below and Shadow will say it in his own ultimate lifeform way.</p>
+      <textarea id="inputText" placeholder="Enter a sentence..."></textarea>
+      <button id="translateButton">Translate</button>
+      <div class="output" id="outputText">The translation will appear here.</div>
+    </div>
+  </div>
+
+  <script>
+    const replacements = {
+      "i": "I",
+      "i'm": "I'm",
+      "im": "I'm",
+      "dont": "don't",
+      "can't": "can't",
+      "cannot": "can't",
+      "bye": "leave me alone.",
+      "good": "acceptable",
+      "great": "useful",
+      "yes": "fine",
+      "no": "never",
+      "maybe": "perhaps",
+      "really": "seriously",
+      "stop": "cut it out",
+      "wait": "hold on",
+      "please": "",
+      "u": "you",
+      "wanna": "want to",
+      "gonna": "going to",
+      "ya": "you"
+    };
+
+    const phraseReplacements = {
+      "what you want to do": "what do you want to do",
+      "what u wanna do": "what do you want to do",
+      "what you doing": "what are you doing",
+      "why you doing": "why are you doing",
+      "how you doing": "how are you doing",
+      "where you going": "where are you going",
+      "who you are": "who are you"
+    };
+
+    function capitalizeSentence(sentence) {
+      sentence = sentence.trim();
+      if (!sentence) return sentence;
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+    }
+
+    function translateToShadow(text) {
+      text = text.trim();
+      if (!text) return "Speak if you want something.";
+
+      const punctuation = /([,.!?;:])/g;
+      text = text.replace(/\n/g, " ").replace(/\s+/g, " ").replace(punctuation, " $1");
+
+      const words = text.split(/\s+/);
+      const replacedWords = [];
+      for (let word of words) {
+        const key = word.toLowerCase();
+        if (Object.prototype.hasOwnProperty.call(replacements, key)) {
+          const replacement = replacements[key];
+          if (replacement) {
+            replacedWords.push(replacement);
+          }
+        } else {
+          replacedWords.push(word);
+        }
+      }
+
+      let translated = replacedWords.join(' ').replace(/\s+([,.!?;:])/g, '$1').trim().toLowerCase();
+      for (const [phrase, replacement] of Object.entries(phraseReplacements)) {
+        translated = translated.replace(new RegExp(phrase, 'g'), replacement);
+      }
+
+      const fragments = translated.split(/\s+and\s+|\s+but\s+|\s+or\s+/i).map(f => f.trim()).filter(Boolean);
+      const questionWords = /\b(what|who|where|when|why|how)\b/i;
+      const auxQuestion = /\b(are|do|did|have|will|can|could|would|is|was)\b.*\byou\b/i;
+
+      function shadowSentence(fragment, isQuestion) {
+        if (isQuestion) {
+          if (/\bhow are you feeling\b/i.test(fragment)) {
+            return "How do you think I feel?";
+          }
+          if (/\bhow are you\b/i.test(fragment)) {
+            return "I do not answer that.";
+          }
+          if (/\bhow do you feel\b/i.test(fragment)) {
+            return "Your question is irrelevant.";
+          }
+          if (/\bwhat are you doing\b/i.test(fragment)) {
+            return "What are you attempting?";
+          }
+          if (/\bwhat do you want\b/i.test(fragment)) {
+            return "What do you expect from me?";
+          }
+          if (/\bcan you help me\b/i.test(fragment)) {
+            return "I'm not here to help.";
+          }
+          if (/\bwill you\b|\bwould you\b|\bcould you\b/i.test(fragment)) {
+            return "I won't answer that.";
+          }
+          if (/\bwhat\b/i.test(fragment)) {
+            return "What do you think you're doing?";
+          }
+          return "Don't ask me that.";
+        }
+        if (/\bim just playing a game\b|\bi am just playing a game\b|\bplaying a game\b/i.test(fragment)) {
+          return "I'm only competing in a battle.";
+        }
+        if (/\bi hate\b|\bthis is horrible\b|\bit's horrible\b|\bthis is terrible\b/i.test(fragment)) {
+          return "Your anger means nothing to me.";
+        }
+        if (/\bno one\b.*\bsee\b|\bsee me\b|\bwill see\b/i.test(fragment)) {
+          return "No one will compare to me.";
+        }
+        if (/\bultimate\b|\butlimate\b|\bultimate lifeform\b/i.test(fragment)) {
+          return "I am the ultimate lifeform.";
+        }
+        if (/\bfan\b/i.test(fragment)) {
+          return "I don't care for fandoms.";
+        }
+        if (/\bcode\b|\bprogram\b|\bscripting\b/i.test(fragment)) {
+          return "Code doesn't change what I am.";
+        }
+        if (/\bcan't\b|\bcant\b|\bcannot\b/i.test(fragment)) {
+          return "Weakness is not an option.";
+        }
+        if (/\bhelp\b|\bwant\b|\bwanna\b|\bfavor\b/i.test(fragment)) {
+          return "You want something impossible.";
+        }
+        if (/\bhello\b|\bhi\b|\bhey\b/i.test(fragment)) {
+          return "Don't address me so casually.";
+        }
+
+        const synonyms = {
+          just: 'only',
+          playing: 'competing',
+          game: 'battle',
+          doing: 'attempting',
+          want: 'expect',
+          wanna: 'want to',
+          help: 'aid',
+          code: 'script',
+          cant: 'won\'t',
+          "can't": 'won\'t',
+          im: "I'm",
+          "i'm": "I'm",
+          i: 'I',
+          no: 'never',
+          love: 'respect',
+          better: 'stronger',
+          terrible: 'meaningless',
+          horrible: 'useless'
+        };
+
+        const tokens = fragment.split(/\s+/);
+        let changed = false;
+        const rewritten = tokens.map(token => {
+          const key = token.toLowerCase();
+          if (Object.prototype.hasOwnProperty.call(synonyms, key)) {
+            changed = true;
+            return synonyms[key];
+          }
+          return token;
+        });
+        if (changed) {
+          let result = rewritten.join(' ').replace(/[.?!]+$/, '');
+          if (!result.endsWith('.')) result += '.';
+          return result.charAt(0).toUpperCase() + result.slice(1);
+        }
+        return "This has no meaning to me.";
+      }
+
+      const translatedParts = [];
+      for (let fragment of fragments) {
+        if (!fragment) continue;
+        const isQuestion = fragment.endsWith('?') || questionWords.test(fragment) || auxQuestion.test(fragment);
+        fragment = fragment.replace(/[.?!]+$/, '');
+        translatedParts.push(shadowSentence(fragment, isQuestion));
+      }
+
+      translated = translatedParts.join(' ');
+      translated = translated.replace(/\bi\b/g, 'I');
+      return translated;
+    }
+
+    document.getElementById('translateButton').addEventListener('click', () => {
+      const input = document.getElementById('inputText').value;
+      document.getElementById('outputText').textContent = translateToShadow(input);
+    });
+  </script>
+</body>
+</html>
