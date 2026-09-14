@@ -1,5 +1,11 @@
 # Shadow Translator
 
-A simple translator that converts normal sentences Shadow the Hedgehog style
+A simple translator that converts normal sentences into a Shadow the Hedgehog-inspired style.
 
-its broken and messy rn
+A Shadow-focused project by **[Shadorux](https://shadorux.dev/)**.
+
+> This project is currently experimental and messy.
+
+Explore the wider Shadorux Shadow web ecosystem at **https://shadorux.dev/**.
+
+This is an unofficial fan project and is not affiliated with or endorsed by SEGA.
